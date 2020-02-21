@@ -56,7 +56,8 @@ From there, you'll probably want to change a few things:
             "ExampleAuthor"
         ],
         "listeners": [
-            "example.ExampleListener"
+            "example.ExampleListener",
+            "example.ModInitializationListener"
         ]
     } 
     ```
@@ -71,6 +72,7 @@ From there, you'll probably want to change a few things:
     }
     ```
     Inner classes require `$` instead of `.`, e.g. `example.Example$InnerClass`. 
+    
 
 - `pack.mcmeta`
     ```json
@@ -83,6 +85,44 @@ From there, you'll probably want to change a few things:
     ```
     This description is shown at *Select Resource Packs* screen. If mod doesn't have any resources, you can safely delete this file.
 
+## Mixins
+- If you want to change the name of `mixins.modid.json`, you need to change all these places:
+- `build.gradle`
+    ```gradle
+    mixin {
+        defaultObfuscationEnv notch
+        add sourceSets.main, 'mixins.example.refmap.json' //change 'example' into your modid
+    }
+    ```
+
+- `src/main/resources/mixins.example.json`
+    ```json
+    {
+      "required": true,
+      "minVersion": "0.7.11",
+      "compatibilityLevel": "JAVA_8",
+      "target": "@env(DEFAULT)",
+      "package": "example.mixin",
+      "refmap": "mixins.example.refmap.json",
+      "mixins": [
+      ],
+      "client": [
+        "MixinLoadingGui"
+      ],
+      "server": [
+      ]
+    }
+    ```
+    
+- `src/main/java/example/mixin/ModInitializationListener.java`
+    ```java
+    @Override
+    public void onInitialization() {
+        MixinBootstrap.init();
+        Mixins.addConfiguration("mixins.example.json");
+    }
+    ```
+
 ## Tips
 
 - Changing `src/main/java` to `src` and `src/main/resources` to `resources`:
@@ -94,6 +134,8 @@ From there, you'll probably want to change a few things:
         }
     }
     ```
+- Running under Intellij IDEA:<br>
+    Click *Add Configuration...*, set *Main class* to be `GradleStart`, with *Program arguments* `--tweakClass org.dimdev.riftloader.launch.RiftLoaderClientTweaker`(run client) or `--tweakClass org.dimdev.riftloader.launch.RiftLoaderServerTweaker`(run server)
 
 - Running Server under Eclipse:<br>
     Open *Launch Configurations*, select *yourmod*\_client, switch to *Arguments* tab, change program arguments from `...Client...` to `...Server...`:
