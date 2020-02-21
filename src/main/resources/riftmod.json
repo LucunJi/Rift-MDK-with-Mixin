@@ -5,6 +5,7 @@
         ""
     ],
     "listeners": [
-        "example.ExampleListener"
+        "example.ExampleListener",
+        "example.ModInitializationListener"
     ]
 }
